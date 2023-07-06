@@ -7,4 +7,4 @@ Install `zsh-syntax-highlighting` and `zsh-autosuggestions` in the following loc
     "$PREFIX/local/share"
     "$PREFIX/share"
 ```
-see [.zshrc](.zhsrc) for details
+see [.zshrc](.zshrc) for details
