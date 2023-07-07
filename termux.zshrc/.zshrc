@@ -15,13 +15,12 @@ WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 # hide EOL sign ('%')
 PROMPT_EOL_MARK=""
 
-# specify $PREFIX
-[ -z $PREFIX ] && PREFIX=/usr
-
 declare -a SHARE=(
     "$HOME/.local/share"
     "$PREFIX/local/share"
+    "/usr/local/share"
     "$PREFIX/share"
+    "/usr/share"
 )
 
 get_files() {
