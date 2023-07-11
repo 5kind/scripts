@@ -1,0 +1,11 @@
+#!/bin/bash
+
+main(){
+apt update
+apt upgrade ${@} -y
+apt autoremove -y
+apt dist-upgrade
+}
+
+[ "$EUID" -eq 0 ] && main && exit
+sudo "${0}"
