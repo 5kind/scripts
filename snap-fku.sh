@@ -1,7 +1,11 @@
-root_require(){
+pre_remove(){
   if [ "$(id -u)" -ne 0 ] ;then
-    sudo ${0}
-    exit
+    exec sudo bash ${0}
+  fi
+
+  if ! command -v snap 2>&1 >/dev/null ;then
+    apt_ban
+    exit 0
   fi
 }
 
@@ -15,7 +19,7 @@ pkg_remove(){
   snap_remove
   snap_remove
   snap_remove
-   apt autoremove --purge snapd
+  apt autoremove --purge snapd
 }
 
 apt_ban(){
@@ -29,6 +33,6 @@ EOF
 }
 
 # main
-root_require
+pre_remove
 pkg_remove
 apt_ban
