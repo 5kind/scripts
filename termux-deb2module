@@ -1,0 +1,80 @@
+#!/bin/bash
+
+apkname=com.termux
+modname=${apkname}.binary
+pkgcache=/data/data/${apkname}/cache/apt/archives
+PREFIX=/data/data/com.termux/files/usr
+
+[ -z "$TMPDIR" ] && TMPDIR=/data/local/tmp
+[ -z "$TERMUX_VERSION" ] && TERMUX_VERSION=0.118.0
+
+if [ -e "$1" ] ;then
+    binary="$1"
+else
+    binary=$(which $1)
+fi
+
+shift
+
+if [ -n "$1" ] ;then
+    modulesdir="$1"
+else
+    modulesdir="/data/adb/modules_update"
+fi
+
+moddir=${modulesdir}/${modname}
+
+pkgfind(){
+    pkgname=$(apt-file search ${@}| head -n 1 | sed 's/:.*//')
+    pkgfile=$(ls -t ${pkgcache}/${pkgname}_*.deb | head -n 1)
+}
+
+module_prop(){
+    cat <<EOF
+id=${modname}
+name=${apkname} Binary Files
+version=${TERMUX_VERSION}
+versionCode=1
+author=5kind
+description=Provide termux binary in android shell.
+EOF
+}
+
+module_full_install(){
+    dpkg-deb --extract ${pkgfile} ${TMPDIR}
+    cp -rf ${TMPDIR}${PREFIX}/{bin,lib,etc} ${moddir}/system 2> /dev/null
+    cp -rf ${TMPDIR}${PREFIX}/share ${moddir}/system/usr 2> /dev/null
+    rm -rf ${TMPDIR}${PREFIX}
+}
+
+module_mini_install(){
+    dpkg-deb --extract ${pkgfile} ${TMPDIR}
+    case $(basename $(dirname ${binpath})) in
+        bin)
+            cp -rfL ${binpath} ${moddir}/system/bin
+            ;;
+        lib)
+            cp -rfL ${binpath} ${moddir}/system/lib
+            ;;
+        *)  ;;
+    esac
+    rm -rf ${TMPDIR}${PREFIX}
+}
+
+module_install(){
+    module_mini_install
+}
+
+# module_init
+pkgfind $binary
+binpath=$binary
+mkdir -p ${moddir}/system/{bin,lib,usr}
+module_prop > ${moddir}/module.prop
+module_install
+# module_install_lib
+for pkglib in $(ldd ${binary} | grep ${apkname} | awk '{print $NF}') ;do
+    binpath=$pkglib
+    pkgfind $pkglib
+    module_install
+done
+
