@@ -1,0 +1,44 @@
+#!/bin/bash
+author=openRunner
+repertory=clash-freenode
+branch=main
+file=clash.yaml
+link_file=config.yaml
+
+urls=("https://raw.githubusercontent.com/${author}/${repertory}/${branch}/${file}"
+"https://cdn.jsdelivr.net/gh/${author}/${repertory}@${branch}/${file}"
+"https://cdn.statically.io/gh/${author}/${repertory}/${branch}/${file}")
+
+download_url(){
+    for url in "${urls[@]}"; do
+        curl --remote-name --fail --max-time 10 "${url}" && return 0
+    done
+    echo "Failed!" && return 1
+}
+
+mklink(){
+    [[ "${file}" != "${link_file}" ]] && ln -sf ${file} ${link_file}
+}
+
+usage(){
+    cat <<EOF
+Usage: ${0##*/} [-a author] [-r repo] [-b branch] [-f file] [-l link_file]
+
+If those arguments are not specified, the default values are used,
+cat ${0##*/} for details.
+EOF
+}
+
+while getopts ':a:r:b:f:l:h' flag; do
+  case $flag in
+    a)  author=$OPTARG      ;;
+    r)  repertory=$OPTARG   ;;
+    b)  branch=$OPTARG      ;;
+    f)  file=$OPTARG        ;;
+    l)  link_file=$OPTARG   ;;
+    h)  usage && exit 0     ;;
+    *)  usage && exit 1     ;;
+  esac
+done
+
+download_url && mklink
