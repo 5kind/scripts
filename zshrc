@@ -15,18 +15,18 @@ WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 # hide EOL sign ('%')
 PROMPT_EOL_MARK=""
 
-declare -a SHARE=(
+[ -z "$PREFIX" ] && PREFIX=/usr
+
+declare -a SHARE_DIRS=(
     "$HOME/.local/share"
     "$PREFIX/local/share"
-    "/usr/local/share"
     "$PREFIX/share"
-    "/usr/share"
 )
 
 get_files() {
   for str in "$@"; do
     if [ -e "$str" ]; then
-      echo "$str"
+      printf %s "$str"
       return 0
     fi
   done
@@ -43,12 +43,12 @@ out_array_files(){
         output+=" $element/$files"
     done
 
-    echo "${output:1}"
+    printf %s "${output:1}"
 }
 
-ZSH_SYNTAX_HIGHLIGHTING="$(get_files $(out_array_files SHARE zsh-syntax-highlighting))"
+ZSH_SYNTAX_HIGHLIGHTING="$(get_files $(out_array_files SHARE_DIRS zsh-syntax-highlighting))"
 ZSH_SYNTAX_HIGHLIGHTING_ZSH="${ZSH_SYNTAX_HIGHLIGHTING}/zsh-syntax-highlighting.zsh"
-ZSH_AUTOSUGGESTIONS="$(get_files $(out_array_files SHARE zsh-autosuggestions))"
+ZSH_AUTOSUGGESTIONS="$(get_files $(out_array_files SHARE_DIRS zsh-autosuggestions))"
 ZSH_AUTOSUGGESTIONS_ZSH="${ZSH_AUTOSUGGESTIONS}/zsh-autosuggestions.zsh"
 
 # configure key keybindings
@@ -128,7 +128,7 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 configure_prompt() {
-	prompt_symbol="@"
+    prompt_symbol="@"
     # Skull emoji for root terminal
     [ "$EUID" -eq 0 ] && prompt_symbol=💀
     case "$PROMPT_ALTERNATIVE" in
@@ -292,4 +292,3 @@ fi
 if [ -f /etc/zsh_command_not_found ]; then
     . /etc/zsh_command_not_found
 fi
-

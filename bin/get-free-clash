@@ -1,0 +1,45 @@
+#!/bin/bash
+
+urls=(
+    # "https://nodefree.org/dy/2023/10/20231008.yaml"   # empty
+    "https://clashnode.com/wp-content/uploads/%Y/%m/%Y%m%d.yaml"
+    "https://raw.githubusercontent.com/pojiezhiyuanjun/%Y/master/%m%dclash.yml"
+    "https://tt.vg/freeclash"
+    "https://sub.nicevpn.top/Clash.yaml"
+    # "https://raw.githubusercontent.com/mfuu/v2ray/master/clash.yaml"
+    # "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml"
+    # "https://raw.githubusercontent.com/oslook/clash-freenode/main/clash.yaml"
+    # "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/clash.yml"
+    "https://raw.githubusercontent.com/learnhard-cn/free_proxy_ss/main/clash/clash.provider.yaml"
+    "https://raw.githubusercontent.com/tbbatbb/Proxy/master/dist/clash.config.yaml"
+    "https://raw.githubusercontent.com/vveg26/get_proxy/main/dist/clash.config.yaml"
+    "https://raw.githubusercontent.com/openrunner/clash-freenode/main/clash.yaml"
+)
+
+raw_prefix="https://raw.githubusercontent.com/"
+
+check_command() {
+    local command_name=$1
+    local script_directory=$(dirname "$0")
+    local command_path=$(command -v "$command_name")
+
+    if [ -z "$command_path" ]; then
+        local executable_file="$script_directory/$command_name"
+
+        if [ -x "$executable_file" ]; then
+            export PATH="$script_directory:$PATH"
+        fi
+    fi
+}
+
+check_command date-url-downloader
+check_command github-downloader
+
+get_info_from() {
+    local url="$1"
+}
+
+for url in ${urls[@]}; do
+    if [[ $url == $raw_prefix* ]] ;then
+        if [[ $url == *%* ]] ;then
+            github-downloader 

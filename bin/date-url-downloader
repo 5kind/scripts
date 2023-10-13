@@ -1,0 +1,44 @@
+#!/bin/bash
+
+url='https://nodefree.org/dy/%Y/%m/%Y%m%d.yaml'
+link_file="config.yaml"
+try_num=3
+max_time=10
+
+for ((i=0; i<3; i++)) ;do
+    urls+=$(date -d "$i days ago" +$url)
+done
+
+download_url(){
+    for url in "${urls[@]}"; do
+        curl --remote-name --fail --max-time $max_time "${url}" && \
+        file=$(basename ${url}) && return 0
+    done
+    echo "Failed!" && return 1
+}
+
+mklink(){
+    [[ "${file}" != "${link_file}" ]] && ln -sf ${file} ${link_file}
+}
+
+usage(){
+    cat <<EOF
+Usage: ${0##*/} [-u url] [-l link_file] [-t try_num] [-m max_time]
+
+A script to download url file, date format is support,
+cat ${0##*/} and date --help for details.
+EOF
+}
+
+while getopts ':u:l:t:h' flag; do
+  case $flag in
+    u)  url=$OPTARG         ;;
+    l)  link_file=$OPTARG   ;;
+    t)  try_num=$OPTARG     ;;
+    m)  max_time=$OPTARG    ;;
+    h)  usage && exit 0     ;;
+    *)  usage && exit 1     ;;
+  esac
+done
+
+download_url && mklink
